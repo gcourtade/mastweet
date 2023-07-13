@@ -73,7 +73,7 @@ def main():
         synced_toots.append(latest_toot_id)
         with open(pickle_name, 'wb') as f:
             pickle.dump(synced_toots, f)
-        parse_toot(latest_toot_content)
+        parse_toot()
     else:
         print('Toot already synced')
 
