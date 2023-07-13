@@ -19,13 +19,13 @@ consumer_secret = os.environ.get("TWITTER_CONSUMER_SECRET")
 access_token = os.environ.get("TWITTER_ACCESS_TOKEN")
 access_token_secret = os.environ.get("TWITTER_ACCESS_TOKEN_SECRET")
 
-def parse_toot():
+def parse_toot(latest_toot_content):
     # Remove HTML tags from toot
     soup = BeautifulSoup(latest_toot_content, 'html.parser')
     latest_toot_text = soup.get_text()
 
     if latest_toot_text.find(os.environ.get("MASTODON_HASHTAG")) != -1:
-        tweet_toot()
+        tweet_toot(latest_toot_text)
 
 
 def connect_to_oauth(consumer_key, consumer_secret, acccess_token, access_token_secret):
@@ -34,7 +34,7 @@ def connect_to_oauth(consumer_key, consumer_secret, acccess_token, access_token_
     return url, auth
 
 
-def tweet_toot():
+def tweet_toot(latest_toot_text):
     payload = { "text": latest_toot_text }
 
     url, auth = connect_to_oauth(
@@ -73,7 +73,7 @@ def main():
         synced_toots.append(latest_toot_id)
         with open(pickle_name, 'wb') as f:
             pickle.dump(synced_toots, f)
-        parse_toot()
+        parse_toot(latest_toot_content)
     else:
         print('Toot already synced')
 
