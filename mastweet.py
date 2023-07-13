@@ -19,13 +19,13 @@ consumer_secret = os.environ.get("TWITTER_CONSUMER_SECRET")
 access_token = os.environ.get("TWITTER_ACCESS_TOKEN")
 access_token_secret = os.environ.get("TWITTER_ACCESS_TOKEN_SECRET")
 
-def parse_toot(latest_toot_content):
+def parse_toot(latest_toot_content, latest_toot_id):
     # Remove HTML tags from toot
     soup = BeautifulSoup(latest_toot_content, 'html.parser')
     latest_toot_text = soup.get_text()
 
     if latest_toot_text.find(os.environ.get("MASTODON_HASHTAG")) != -1:
-        tweet_toot(latest_toot_text)
+        tweet_toot(latest_toot_text, latest_toot_id)
 
 
 def connect_to_oauth(consumer_key, consumer_secret, acccess_token, access_token_secret):
@@ -34,7 +34,7 @@ def connect_to_oauth(consumer_key, consumer_secret, acccess_token, access_token_
     return url, auth
 
 
-def tweet_toot(latest_toot_text):
+def tweet_toot(latest_toot_text, latest_toot_id):
     payload = { "text": latest_toot_text }
 
     url, auth = connect_to_oauth(
@@ -49,6 +49,9 @@ def tweet_toot(latest_toot_text):
     if request.status_code != 201:
         raise Exception(f"Request returned error: {request.status_code}, {request.text}")
     else:
+        synced_toots.append(latest_toot_id)
+        with open(pickle_name, 'wb') as f:
+            pickle.dump(synced_toots, f)
         print("Successfully tweeted!")
 
 def main():
@@ -70,10 +73,7 @@ def main():
     # Only proceed if toot has not been synced before
     # (This is actually redundant, as Twitter does not allow two identical Tweets to be posted)
     if latest_toot_id not in synced_toots:
-        synced_toots.append(latest_toot_id)
-        with open(pickle_name, 'wb') as f:
-            pickle.dump(synced_toots, f)
-        parse_toot(latest_toot_content)
+        parse_toot(latest_toot_content, latest_toot_id)
     else:
         print('Toot already synced')
 
