@@ -69,6 +69,7 @@ def main():
     toots = mastodon.account_statuses(user_id, limit=1)
     latest_toot_content = toots[0]['content']
     latest_toot_id = toots[0]['id']
+    print(toots[0])
 
     # Only proceed if toot has not been synced before
     # (This is actually redundant, as Twitter does not allow two identical Tweets to be posted)
