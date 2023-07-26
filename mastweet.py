@@ -75,7 +75,7 @@ def main():
     latest_toot_content = toots[0]['content']
     latest_toot_id = toots[0]['id']
     image_url = "empty"
-    if len(media_attachments) > 0:
+    if len(toots[0]["media_attachments"]) > 0:
         image_url = toots[0]["media_attachments"][0]["url"]
 
     # Only proceed if toot has not been synced before
