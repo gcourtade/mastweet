@@ -45,7 +45,7 @@ def tweet_toot(latest_toot_text, latest_toot_id, image_url):
         consumer_key, consumer_secret, access_token, access_token_secret
     )
     media_id = upload_media(auth, image_url)
-    payload = { "text": latest_toot_text, "media_ids" : media_id }
+    payload = { "text": latest_toot_text, "media_ids" : [media_id] }
     request = requests.post(
         auth=auth, url=url, json=payload, headers={"Content-Type": "application/json"}
     )
