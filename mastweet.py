@@ -33,14 +33,20 @@ def connect_to_oauth(consumer_key, consumer_secret, acccess_token, access_token_
     auth = OAuth1(consumer_key, consumer_secret, acccess_token, access_token_secret)
     return url, auth
 
+def upload_media(auth, image_url):
+    media_upload_url = 'https://upload.twitter.com/1.1/media/upload.json'
+img_data = requests.get(image_url).content
+    media_upload_resp = requests.post(media_upload_url, files={'media': img_data}, auth=auth)
+    media_id = media_upload_resp.json()['media_id_string']
+    return media_id
 
-def tweet_toot(latest_toot_text, latest_toot_id):
-    payload = { "text": latest_toot_text }
+def tweet_toot(latest_toot_text, latest_toot_id, image_url):
 
     url, auth = connect_to_oauth(
         consumer_key, consumer_secret, access_token, access_token_secret
     )
-    print(url, auth)
+    media_id = upload_media(auth, image_url)
+    payload = { "text": latest_toot_text, "media_ids" : media_id }
     request = requests.post(
         auth=auth, url=url, json=payload, headers={"Content-Type": "application/json"}
     )
