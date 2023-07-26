@@ -83,6 +83,9 @@ def main():
     print(synced_toots)
     if latest_toot_id not in synced_toots:
         print(latest_toot_content, latest_toot_id,image_url)
+synced_toots.apppend(latest_toot_id)
+with open(pickle_name, 'wb') as f:
+            pickle.dump(synced_toots,f)
     else:
         print('Toot already synced')
 
