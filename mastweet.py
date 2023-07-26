@@ -80,6 +80,7 @@ def main():
 
     # Only proceed if toot has not been synced before
     # (This is actually redundant, as Twitter does not allow two identical Tweets to be posted)
+    print(synced_toots)
     if latest_toot_id not in synced_toots:
         print(latest_toot_content, latest_toot_id,image_url)
     else:
