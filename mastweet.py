@@ -19,13 +19,13 @@ consumer_secret = os.environ.get("TWITTER_CONSUMER_SECRET")
 access_token = os.environ.get("TWITTER_ACCESS_TOKEN")
 access_token_secret = os.environ.get("TWITTER_ACCESS_TOKEN_SECRET")
 
-def parse_toot(latest_toot_content, latest_toot_id):
+def parse_toot(latest_toot_content, latest_toot_id, image_url):
     # Remove HTML tags from toot
     soup = BeautifulSoup(latest_toot_content, 'html.parser')
     latest_toot_text = soup.get_text()
 
     if latest_toot_text.find(os.environ.get("MASTODON_HASHTAG")) != -1:
-        tweet_toot(latest_toot_text, latest_toot_id)
+        tweet_toot(latest_toot_text, latest_toot_id, image_url)
 
 
 def connect_to_oauth(consumer_key, consumer_secret, acccess_token, access_token_secret):
@@ -35,13 +35,12 @@ def connect_to_oauth(consumer_key, consumer_secret, acccess_token, access_token_
 
 def upload_media(auth, image_url):
     media_upload_url = 'https://upload.twitter.com/1.1/media/upload.json'
-img_data = requests.get(image_url).content
+    img_data = requests.get(image_url).content
     media_upload_resp = requests.post(media_upload_url, files={'media': img_data}, auth=auth)
     media_id = media_upload_resp.json()['media_id_string']
     return media_id
 
 def tweet_toot(latest_toot_text, latest_toot_id, image_url):
-
     url, auth = connect_to_oauth(
         consumer_key, consumer_secret, access_token, access_token_secret
     )
@@ -75,12 +74,14 @@ def main():
     toots = mastodon.account_statuses(user_id, limit=1)
     latest_toot_content = toots[0]['content']
     latest_toot_id = toots[0]['id']
-    print(toots[0])
+    image_url = "empty"
+    if len(media_attachments) > 0:
+        image_url = toots[0]["media_attachments"][0]["url"]
 
     # Only proceed if toot has not been synced before
     # (This is actually redundant, as Twitter does not allow two identical Tweets to be posted)
     if latest_toot_id not in synced_toots:
-        parse_toot(latest_toot_content, latest_toot_id)
+        print(latest_toot_content, latest_toot_id,image_url)
     else:
         print('Toot already synced')
 
