@@ -36,22 +36,33 @@ def connect_to_oauth(consumer_key, consumer_secret, acccess_token, access_token_
     auth = OAuth1(consumer_key, consumer_secret, acccess_token, access_token_secret)
     return url, auth
 
-def upload_media(auth, image_url):
-    media_upload_url = 'https://upload.twitter.com/1.1/media/upload.json'
+def upload_media(auth):
+    url = 'https://upload.twitter.com/1.1/media/upload.json'
     img_data = requests.get(image_url).content
-    media_upload_resp = requests.post(media_upload_url, files={'media': img_data}, auth=auth)
-    media_id = media_upload_resp.json()['media_id_string']
+    request = requests.post(auth=auth, url=url, files={'media': img_data})
+    media_id = request.json()['media_id_string']
     return media_id
+
+def upload_media_metadata(auth, media_id, alt_text):
+    url = 'https://upload.twitter.com/1.1/media/metadata/create.json'
+    json = {"media_id":media_id, "alt_text": {"text":alt_text}}
+    request = requests.post(
+        auth=auth, url=url, json=json, headers={"Content-Type": "application/json"}
+    )
+    return request
 
 def tweet_toot(latest_toot_text):
     url, auth = connect_to_oauth(
         consumer_key, consumer_secret, access_token, access_token_secret
     )
-    media_id = upload_media(auth, image_url)
-    print(media_id)
-    payload = { "text": latest_toot_text, "media_id" : media_id }
+    if image_url != "empty":
+        media_id = upload_media(auth)
+        upload_media_metadata(auth, media_id)
+
+
+    json = { "text": latest_toot_text, "media": {"media_ids": [media_id]} }
     request = requests.post(
-        auth=auth, url=url, json=payload, headers={"Content-Type": "application/json"}
+        auth=auth, url=url, json=json, headers={"Content-Type": "application/json"}
     )
 
     # Check response
@@ -64,7 +75,7 @@ def tweet_toot(latest_toot_text):
         print("Successfully tweeted!")
 
 def main():
-    global pickle_name, latest_toot_content, latest_toot_id, image_url, synced_toots
+    global pickle_name, synced_toots, latest_toot_content, latest_toot_id, image_url, alt_text
     # Load list of already synced toots, if it exists in cache
     try:
         with open(pickle_name, 'rb') as f:
@@ -81,6 +92,7 @@ def main():
     image_url = "empty"
     if len(toots[0]["media_attachments"]) > 0:
         image_url = toots[0]["media_attachments"][0]["url"]
+        alt_text = toots[0]["media_attachments"][0]["description"]
 
     # Only proceed if toot has not been synced before
     # (This is actually redundant, as Twitter does not allow two identical Tweets to be posted)
