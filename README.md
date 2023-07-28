@@ -2,7 +2,7 @@
 ---
 This script cross-posts Mastodon toots to Twitter. The code was adapted from https://github.com/twitterdev/FactualCat-Twitter-Bot
 
-It runs as a cron GitHub Action every 10 min to post your latest Toot containing a specified hashtag to Twitter. This action was adapted from https://github.com/klausi/mastodon-twitter-sync/
+It runs as a cron GitHub Action every 10 min to post your latest Toot containing a specified hashtag to Twitter. Currently it syncs text and media, including ALT text. This action was adapted from https://github.com/klausi/mastodon-twitter-sync/
 
 I made this script for personal use. If you'd like to try it, you need a Twitter Developer account (I am using the Free plan) and to configure the following:
 1. Create a new Github environment with the name "Cron" at `https://github.com/<USERNAME>/mastweet/settings/environments/new`
