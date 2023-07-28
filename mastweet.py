@@ -43,7 +43,7 @@ def upload_media(auth):
     media_id = request.json()['media_id_string']
     return media_id
 
-def upload_media_metadata(auth, media_id, alt_text):
+def upload_media_metadata(auth, media_id):
     url = 'https://upload.twitter.com/1.1/media/metadata/create.json'
     json = {"media_id":media_id, "alt_text": {"text":alt_text}}
     request = requests.post(
